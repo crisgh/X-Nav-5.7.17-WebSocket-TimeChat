@@ -9,6 +9,7 @@ import ssl
 import logging
 from SimpleWebSocketServer import WebSocket, SimpleWebSocketServer, SimpleSSLWebSocketServer
 from optparse import OptionParser
+import time
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 
@@ -21,6 +22,7 @@ class SimpleEcho(WebSocket):
 
         try:
             self.sendMessage(str(self.data))
+
         except Exception as n:
             print n
 
@@ -36,11 +38,16 @@ class SimpleChat(WebSocket):
     def handleMessage(self):
         if self.data is None:
             self.data = ''
+        if (self.data=="getTime"):
+            self.data = time.ctime()
+            self.sendMessage(str(self.data))
+            print "quiero la hora ...." + time.ctime()
 
         for client in self.server.connections.itervalues():
             if client != self:
                 try:
-                    client.sendMessage(str(self.address[0]) + ' - ' + str(self.data))
+                    client.sendMessage(str(self.address[0]) +' : ' +  str(self.address[1]) +' - ' + str(self.data))
+                    print "Envio ...." + self.data
                 except Exception as n:
                     print n
 
@@ -49,7 +56,7 @@ class SimpleChat(WebSocket):
         for client in self.server.connections.itervalues():
             if client != self:
                 try:
-                    client.sendMessage(str(self.address[0]) + ' - connected')
+                    client.sendMessage(str(self.address[0]) + str(self.address[1]) + ' - connected')
                 except Exception as n:
                     print n
 
